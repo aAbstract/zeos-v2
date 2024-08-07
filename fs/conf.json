@@ -1,0 +1,19 @@
+{
+    "device_uuid": "00000000-0000-0000-0000-000000000000",
+    "device_password": "device_pass_123",
+    "wifi": {
+        "ssid": "",
+        "password": ""
+    },
+    "http": {
+        "host": "0.0.0.0",
+        "port": 8080,
+        "tls": null,
+        "api_root": "/api"
+    },
+    "mqtt": {
+        "mqtt_broker": "",
+        "mqtt_user": "",
+        "mqtt_password": ""
+    }
+}
