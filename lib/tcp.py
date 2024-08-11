@@ -68,6 +68,7 @@ class TCPServer:
         gc.collect()
 
     def __init__(self) -> None:
+        gc.disable()
         self.instance_id = TCPServer._instance_id
         TCPServer._instance_id += 1
         self.host = '0.0.0.0'
