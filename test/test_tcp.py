@@ -37,3 +37,16 @@ def test_get_device_logs_lock():
 def test_get_device_logs_success():
     tcp_res = make_tcp_request('get_logs', {'device_password': 'device_pass_123'})
     assert isinstance(tcp_res, str)
+
+
+def test_device_conf():
+    device_uuid = make_tcp_request('shell', {'script': '_dconf.get_conf("device_uuid")'}, add_password=True)
+    assert re.findall(r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}', device_uuid)
+
+    make_tcp_request('shell', {'script': '_dconf.set_conf("device_uuid", "x")'}, add_password=True)
+    tcp_res = make_tcp_request('shell', {'script': '_dconf.get_conf("device_uuid")'}, add_password=True)
+    assert tcp_res == 'x'
+
+    make_tcp_request('shell', {'script': f'_dconf.set_conf("device_uuid", "{device_uuid}")'}, add_password=True)
+    tcp_res = make_tcp_request('shell', {'script': '_dconf.get_conf("device_uuid")'}, add_password=True)
+    assert tcp_res == device_uuid

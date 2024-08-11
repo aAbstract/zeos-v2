@@ -21,7 +21,7 @@ def _write_conf_file(_conf: dict):
 
 
 def set_conf(_key: str, _val: str):
-    _conf = _read_conf_file()
+    global _conf
     _conf[_key] = _val
     _write_conf_file(_conf)
 

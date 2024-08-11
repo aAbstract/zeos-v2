@@ -30,7 +30,7 @@ def _wifi_connect_esp():
 def _wifi_connect_unix():
     log_src = 'lib.wifi.wifi_connect_unix'
     _log.ilog('Unix Connecting to WiFi...', log_src)
-    cmd_res = subprocess.run(['ifconfig'], capture_output=True, text=True)
+    cmd_res = subprocess.run('ifconfig', shell=True, capture_output=True, text=True)
     wifi_ip = re.findall(r'wlo[0-9]:.*\n\s+inet\s(.*)\s{2}netmask', cmd_res.stdout)
     if wifi_ip:
         _log.ilog('Unix Connecting to WiFi...OK', log_src)

@@ -20,5 +20,5 @@ def make_tcp_request(rpc_call: str, args: dict = {}, add_password: bool = False)
     if add_password:
         args['device_password'] = _dconf.get_conf('device_password')
     cmd = f"echo '{rpc_call} {json.dumps(args)}' | nc {TCP_SERVER} {TCP_PORT}"
-    cmd_res = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    return cmd_res.stdout.decode()
+    cmd_res = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+    return cmd_res.stdout

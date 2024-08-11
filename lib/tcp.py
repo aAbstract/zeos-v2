@@ -15,7 +15,7 @@ def _get_logs(args: dict, sw: asyncio.StreamWriter) -> str | None:
     if device_password != _dconf.get_conf('device_password'):
         sw.write('Invalid Device Password'.encode())
         return
-    return '\n'.join(_log.get_logs())
+    return '\n'.join(_log.get_logs_tail())
 
 
 def _lwt(args: dict, sw: asyncio.StreamWriter) -> str | None:
@@ -47,7 +47,7 @@ class TCPServer:
     handlers_map: dict
 
     async def _core_handler(self, sr: asyncio.StreamReader, sw: asyncio.StreamWriter):
-        _log.ilog('Received Connection from ' + str(sw.get_extra_info('peername')), 'lib.tcp.TCPServer._core_handler')
+        _log.dlog('Received Connection from ' + str(sw.get_extra_info('peername')), 'lib.tcp.TCPServer._core_handler')
         rpc_call = await sr.readline()
         rpc_call = rpc_call[:-1].decode()
         rpc_call_parts = rpc_call.split(' ', 1)
@@ -68,7 +68,6 @@ class TCPServer:
         gc.collect()
 
     def __init__(self) -> None:
-        gc.disable()
         self.instance_id = TCPServer._instance_id
         TCPServer._instance_id += 1
         self.host = '0.0.0.0'

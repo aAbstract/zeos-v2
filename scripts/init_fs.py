@@ -63,13 +63,7 @@ if __name__ == '__main__':
 
     # validate
     print('Validating Device FS...')
-    cmd_res = subprocess.run([
-        'rshell',
-        '-p',
-        DEV_PORT,
-        'ls',
-        '/pyboard/'
-    ], capture_output=True, text=True)
+    cmd_res = subprocess.run(f"rshell -p {DEV_PORT} ls /pyboard/", shell=True, capture_output=True, text=True)
     device_fs = set(cmd_res.stdout.split('\n')[-2].strip().split())
     target_fs = {'lib/', 'fs/', 'main.py'}
     if device_fs != target_fs:
