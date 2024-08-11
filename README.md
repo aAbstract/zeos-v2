@@ -15,7 +15,6 @@ ZEOS is a minimal operating system for IoT devices based on micropython
 - [x] Device Config
 - [ ] Cron Jobs
 - [ ] OTA Firmware Update
-- [x] Python Shell
 - [x] Simple Access Control
 
 ## Run
