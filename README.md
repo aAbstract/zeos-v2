@@ -24,7 +24,7 @@ ZEOS is a minimal operating system for IoT devices based on micropython
 pip3 install rshell
 ```
 
-2. Upload ZEOS File System on Target Device Using Helper Script ***scripts/init_fs.py*
+2. Upload ZEOS File System on Target Device Using Helper Script **scripts/init_fs.py**
 ```bash
 # init_fs.py <module_name> [ul: update lib | (sl): skip lib]
 init_fs.py switch ul
