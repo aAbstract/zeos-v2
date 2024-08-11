@@ -11,6 +11,9 @@ def _read_conf_file() -> dict:
     return _conf
 
 
+_conf = _read_conf_file()
+
+
 def _write_conf_file(_conf: dict):
     conf_fd = open('fs/conf.json', 'w')
     conf_fd.write(json.dumps(_conf, indent=2))
@@ -24,11 +27,12 @@ def set_conf(_key: str, _val: str):
 
 
 def get_conf(_key: str):
+    global _conf
+    conf_level = _conf
     _keys = _key.split('.')
-    _conf = _read_conf_file()
     for k in _keys:
-        if k in _conf:
-            _conf = _conf[k]
+        if k in conf_level:
+            conf_level = conf_level[k]
         else:
             return None
-    return _conf
+    return conf_level

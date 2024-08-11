@@ -7,7 +7,7 @@ if sys.implementation.name == 'micropython':
     import machine # type: ignore
 sys.path.append(os.getcwd())
 
-import lib.tcp as _tcp
+import lib.http as _http
 import lib.log as _log
 import lib.device_config as _dconf
 import lib.wifi as _wifi
@@ -19,23 +19,28 @@ SWITCH_STATE_ON = 0
 SWITCH_STATE_OFF = 1
 
 _wifi.wifi_connect()
-tcp_server = _tcp.TCPServer()
+http_service = _http.HTTPService()
 switch_state = SWITCH_STATE_OFF
 if sys.implementation.name == 'micropython':
     power_0 = machine.Pin(2, machine.Pin.OUT)
     power_0.value(switch_state)
 
 
-def switch_command_power_0(args: dict, sw: asyncio.StreamWriter) -> str | None:
-    global switch_state
-    device_password = args.get('device_password', None)
+@http_service.mdt_server.route(_dconf.get_conf('http.api_root') + '/command/' + _dconf.get_conf('device_uuid') + '/power_0', methods=['POST'])
+def handle_switch_command_power_0(request: _http.Request):
+    req_headers: dict = request.headers
+    device_password = req_headers.get('x-device-password', None)
     if device_password != _dconf.get_conf('device_password'):
-        sw.write('Invalid Device Password'.encode())
-        return
-    command = args.get('command', None)
-    if not command:
-        sw.write('Missing `command` Key')
-        return
+        return _http.HTTPService.wrap_json_string('UNAUTHORIZED'), 401
+
+    json_body = request.g.json_body
+    if not json_body:
+        return _http.HTTPService.wrap_json_string('Missing JSON Body'), 400
+
+    if 'command' not in json_body:
+        return _http.HTTPService.wrap_json_string('Missing `command` Key'), 400
+
+    command = json_body['command']
     command_map = {
         'ON': SWITCH_STATE_ON,
         'OFF': SWITCH_STATE_OFF,
@@ -45,33 +50,27 @@ def switch_command_power_0(args: dict, sw: asyncio.StreamWriter) -> str | None:
     if sys.implementation.name == 'micropython':
         power_0.value(switch_state)
     ret_str = 'SWITCH_STATE_ON' if switch_state == SWITCH_STATE_ON else 'SWITCH_STATE_OFF'
-    return ret_str
+    return _http.HTTPService.wrap_json_string(ret_str)
 
 
-def switch_state_power_0(args: dict, sw: asyncio.StreamWriter) -> str | None:
+@http_service.mdt_server.route(_dconf.get_conf('http.api_root') + '/state/' + _dconf.get_conf('device_uuid') + '/power_0', methods=['GET'])
+def handle_switch_state_power_0(request: _http.Request):
     ret_str = 'SWITCH_STATE_ON' if switch_state == SWITCH_STATE_ON else 'SWITCH_STATE_OFF'
-    return ret_str
-
-
-def mod_setup():
-    tcp_server.add_rpc_handler('switch_command_power_0', switch_command_power_0)
-    tcp_server.add_rpc_handler('switch_state_power_0', switch_state_power_0)
+    return _http.HTTPService.wrap_json_string(ret_str)
 
 
 async def mod_loop():
     _log.ilog('Registered Module Task: ' + MODULE_NAME, 'modules.switch.mod_loop')
     while True:
         # module loop routine
-        # print('MODULE LOOP')
-        await asyncio.sleep(1)  # delay 5s
+        await asyncio.sleep(5)  # delay 5s
 
 
 async def main():
-    mod_setup()
-    tcp_server_task = asyncio.create_task(tcp_server.server_task())
     module_task = asyncio.create_task(mod_loop())
+    http_server_task = asyncio.create_task(http_service.server_task())
     await asyncio.gather(
-        tcp_server_task,
+        http_server_task,
         module_task,
     )
 
