@@ -16,7 +16,7 @@ _conf = _read_conf_file()
 
 def _write_conf_file(_conf: dict):
     conf_fd = open('fs/conf.json', 'w')
-    conf_fd.write(json.dumps(_conf, indent=2))
+    conf_fd.write(json.dumps(_conf))
     conf_fd.close()
 
 

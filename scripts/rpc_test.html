@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZEOS RPC TEST</title>
+</head>
+
+<body>
+
+    <button onclick="make_http_request('/rpc/test')">HTTP /rpc/test</button>
+    <br><br>
+    <button onclick="make_http_request('/rpc/lwt')">HTTP /rpc/lwt</button>
+    <br><br>
+    <button onclick="make_http_request('/rpc/not_found')">HTTP /rpc/not_found</button>
+    <br><br>
+    <button onclick="make_http_request('/rpc/shell', {device_password: 'device_pass_123', script: '1 + 1'})">HTTP /rpc/shell</button>
+
+    <script>
+        function make_http_request(route, data = {}) {
+            if (Object.keys(data).length === 0) {
+                fetch(`http:127.0.0.1:6540${route}`).then(res => {
+                    console.log(res);
+                    res.text().then(res_text => console.log(res_text));
+                });
+            } else {
+                fetch(`http:127.0.0.1:6540${route}?` + new URLSearchParams(data)).then(res => {
+                    console.log(res);
+                    res.text().then(res_text => console.log(res_text));
+                });
+            }
+        }
+    </script>
+
+</body>
+
+</html>

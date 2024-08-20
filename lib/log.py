@@ -1,8 +1,13 @@
 import time
 
+import lib.device_config as _dconf
+import lib.mediator as _mediator
+
 
 MODULE_ID = 'lib.log'
-LOG_FILE_PATH = 'fs/sys.log'
+logs_cache: list[str] = []
+log_level_bits = bin(_dconf.get_conf('system.log_level'))[2:]
+_enable_remote_logger = False
 
 
 def _fmt_datetime() -> str:
@@ -13,38 +18,39 @@ def _fmt_datetime() -> str:
     return f"{hh}:{mm}:{ss}"
 
 
-def _save_log(_log: str):
-    try:
-        log_fd = open(LOG_FILE_PATH, 'a')
-    except OSError:
-        log_fd = open(LOG_FILE_PATH, 'w')
-    log_fd.write(_log + '\n')
-    log_fd.close()
-
-
 def _fmt_log(log_type: str, src: str, msg: str) -> str:
     return f"[{_fmt_datetime()}] [{log_type}] - {src}: {msg}"
 
 
-def get_logs_tail() -> list[str]:
-    logs_fd = open(LOG_FILE_PATH, 'r')
-    logs = logs_fd.read()
-    logs_fd.close()
-    return logs.split('\n')[-5:]
+def _out_log(log_msg: str):
+    if not _enable_remote_logger:
+        print(log_msg)
+        logs_cache.append(log_msg)
+    else:
+        _mediator.post_event('network_log', log_msg)
+
+
+def enable_remote_logger():
+    global _enable_remote_logger
+    _enable_remote_logger = True
 
 
 def ilog(msg: str, src: str = ''):
+    if log_level_bits[0] == '0':
+        return
     log_msg = _fmt_log('INFO', src, msg)
-    print(log_msg)
-    _save_log(log_msg)
+    _out_log(log_msg)
 
 
 def elog(msg: str, src: str = ''):
+    if log_level_bits[1] == '0':
+        return
     log_msg = _fmt_log('ERROR', src, msg)
-    print(log_msg)
-    _save_log(log_msg)
+    _out_log(log_msg)
 
 
 def dlog(msg: str, src: str = ''):
+    if log_level_bits[2] == '0':
+        return
     log_msg = _fmt_log('DEBUG', src, msg)
-    print(log_msg)
+    _out_log(log_msg)

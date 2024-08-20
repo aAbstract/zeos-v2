@@ -7,7 +7,8 @@ def breakpoint(stack_frame: dict = {}):
     for gs_vk in globals().keys():
         print(gs_vk)
     print('Starting Debugger...OK')
-    while True:
+    cmd = ''
+    while cmd != 'q':
         try:
             cmd = input('dbg> ')
             if cmd == 'exit':

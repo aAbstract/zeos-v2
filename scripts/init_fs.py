@@ -42,12 +42,12 @@ if __name__ == '__main__':
     print('Removing Current FS......OK')
 
     print('Creating New FS...')
-    os.system('find . -type d -name "__pycache__" | xargs rm -r')
+    # os.system('find . -type d -name "__pycache__" | xargs rm -r')
     _conf = load_conf()
     device_uuid = str(uuid4())
     with open('fs/conf.json', 'w') as conf_fd:
         _conf['device_uuid'] = device_uuid
-        conf_fd.write(json.dumps(_conf, indent=2))
+        conf_fd.write(json.dumps(_conf))
     if init_fs_mode == 'ul':  # update lib mode
         os.system(f"rshell -p {DEV_PORT} mkdir /pyboard/lib")
         os.system(f"rshell -p {DEV_PORT} cp build/* /pyboard/lib")
@@ -56,9 +56,10 @@ if __name__ == '__main__':
     print('Device UUID:', device_uuid)
     with open('fs/conf.json', 'w') as conf_fd:
         _conf['device_uuid'] = '00000000-0000-0000-0000-000000000000'
-        conf_fd.write(json.dumps(_conf, indent=2))
+        conf_fd.write(json.dumps(_conf))
     print(f"Creating New Entry Point: modules/{target_module}.py -> main.py...")
     os.system(f"rshell -p {DEV_PORT} cp modules/{target_module}.py /pyboard/main.py")
+    # os.system(f"rshell -p {DEV_PORT} cp fs/webrepl_cfg.py /pyboard/")
     print('Creating New Entry Point...OK')
 
     # validate

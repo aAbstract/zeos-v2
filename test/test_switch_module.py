@@ -1,19 +1,39 @@
+import time
 from _test_conf import *
 
 
-def test_switch_state_power_0():
-    _state = make_tcp_request('switch_state_power_0')
-    assert _state == 'SWITCH_STATE_OFF'
+def _collect_relays_state() -> set[str]:
+    return {
+        make_tcp_request('switch_state_power_0'),
+        make_tcp_request('switch_state_power_1'),
+        make_tcp_request('switch_state_power_2'),
+        make_tcp_request('switch_state_power_3'),
+    }
 
 
-def test_switch_command_power_0():
-    _state = make_tcp_request('switch_command_power_0', {'command': 'ON'}, add_password=True)
-    assert _state == 'SWITCH_STATE_ON'
+def _assert_relays_state(_rs: set, target_state: str):
+    assert len(_rs) == 1
+    assert list(_rs)[0] == target_state
 
-    _state = make_tcp_request('switch_command_power_0', {'command': 'OFF'}, add_password=True)
-    assert _state == 'SWITCH_STATE_OFF'
 
-    _state = make_tcp_request('switch_command_power_0', {'command': 'TOGGLE'}, add_password=True)
-    assert _state == 'SWITCH_STATE_ON'
+def _command_all_relays() -> set[str]:
+    return {
+        make_tcp_request('switch_command_power_0'),
+        make_tcp_request('switch_command_power_1'),
+        make_tcp_request('switch_command_power_2'),
+        make_tcp_request('switch_command_power_3'),
+    }
 
-    make_tcp_request('switch_command_power_0', {'command': 'OFF'}, add_password=True)
+
+def test_switch():
+    net_delay = 0.2
+    _assert_relays_state(_collect_relays_state(), 'RELAY_STATE_OFF')
+    time.sleep(net_delay)
+    _assert_relays_state(_command_all_relays(), 'RELAY_STATE_ON')
+    time.sleep(net_delay)
+    _assert_relays_state(_collect_relays_state(), 'RELAY_STATE_ON')
+    time.sleep(net_delay)
+    _assert_relays_state(_command_all_relays(), 'RELAY_STATE_OFF')
+    time.sleep(net_delay)
+    _assert_relays_state(_collect_relays_state(), 'RELAY_STATE_OFF')
+    time.sleep(net_delay)
