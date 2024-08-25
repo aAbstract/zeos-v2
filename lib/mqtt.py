@@ -2,31 +2,19 @@ import sys
 
 import lib.log as _log
 import lib.device_config as _dconf
-import lib.mediator as _mediator
 
 
 _core_rpc_handler_mqtt = None
 _mqtt_client = None
-_mqtt_logs_topic = None
-
-
-def _mqtt_post_connect(mqtt_client):
-    global _mqtt_client
-    global _mqtt_logs_topic
-    _mqtt_client = mqtt_client
-    _mqtt_logs_topic = 'telem/' + _dconf.get_conf('system.device_uuid') + '/logs'
-    _log.enable_remote_logger()
-    _mediator.subscribe('network_log', 'network_log', lambda log_msg: mqtt_publish(_mqtt_logs_topic, log_msg))
 
 
 def _paho_mqtt_on_connect(mqtt_client, _2, _3, rc):
     global _mqtt_client
-    log_src = 'lib.mqtt._paho_mqtt_on_connect'
     if rc == 0:
-        _mqtt_post_connect(mqtt_client)
-        _log.ilog('Connecting to MQTT Broker...OK', log_src)
+        _mqtt_client = mqtt_client
+        _log.ilog('Paho Connecting to MQTT Broker...OK')
     else:
-        _log.elog('Connecting to MQTT Broker...ERR', log_src)
+        _log.elog('Paho Connecting to MQTT Broker...ERR')
 
 
 def _paho_mqtt_on_message(_1, _2, msg):
@@ -51,7 +39,7 @@ def mqtt_connect_cpython(
 ):
     ''' CPython Connect to MQTT Broker and Return Client Task Function '''
     from paho.mqtt.client import Client as MQTTClient
-    _log.dlog(f'CPYTHON Connecting to MQTT Broker mqtt_broker={mqtt_broker}, mqtt_user={mqtt_username}, mqtt_password={mqtt_password}...', 'lib.mqtt.mqtt_connect_cpython')
+    _log.dlog(f'CPYTHON Connecting to MQTT Broker mqtt_broker={mqtt_broker}, mqtt_user={mqtt_username}, mqtt_password={mqtt_password}...')
     mqtt_client = MQTTClient(client_id=client_id, clean_session=True, userdata=None)
     mqtt_client.username_pw_set(mqtt_username, mqtt_password)
     mqtt_client.connect(host=mqtt_broker, port=mqtt_port, keepalive=60)
@@ -73,19 +61,18 @@ def mqtt_connect_micropython(
     ''' MicroPython Connect to MQTT Broker and Return Client Task Function '''
     global _mqtt_client
     from lib.umqtt import MQTTClient
-    log_src = 'lib.mqtt.mqtt_connect_micropython'
-    _log.dlog(f'MICROPYTHON Connecting to MQTT Broker mqtt_broker={mqtt_broker}, mqtt_user={mqtt_username}, mqtt_password={mqtt_password}...', log_src)
+    _log.dlog(f'MICROPYTHON Connecting to MQTT Broker mqtt_broker={mqtt_broker}, mqtt_user={mqtt_username}, mqtt_password={mqtt_password}...')
     mqtt_client = MQTTClient(client_id=client_id, server=mqtt_broker, port=mqtt_port, user=mqtt_username, password=mqtt_password)
     try:
         mqtt_client.connect()
-        _mqtt_post_connect(mqtt_client)
-        _log.ilog('Connecting to MQTT Broker...OK', log_src)
+        _mqtt_client = mqtt_client
         mqtt_client.set_callback(_umqtt_on_message)
         for subscribe_topic in mqtt_subscribe_list:
             mqtt_client.subscribe(subscribe_topic)
-            return mqtt_client.check_msg
+        _log.ilog('MICROPYTHON Connecting to MQTT Broker...OK')
+        return mqtt_client.check_msg
     except:
-        _log.elog('Connecting to MQTT Broker...ERR', log_src)
+        _log.elog('MICROPYTHON Connecting to MQTT Broker...ERR')
 
 
 def mqtt_connect(

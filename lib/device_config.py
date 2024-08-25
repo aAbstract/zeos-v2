@@ -22,17 +22,20 @@ def _write_conf_file(_conf: dict):
 
 def set_conf(_key: str, _val: str):
     global _conf
-    _conf[_key] = _val
+    conf_root, conf_key = _key.split('.')
+    if conf_root not in _conf:
+        return None
+    if conf_key not in _conf[conf_root]:
+        return None
+    _conf[conf_root][conf_key] = _val
     _write_conf_file(_conf)
 
 
 def get_conf(_key: str):
     global _conf
-    conf_level = _conf
-    _keys = _key.split('.')
-    for k in _keys:
-        if k in conf_level:
-            conf_level = conf_level[k]
-        else:
-            return None
-    return conf_level
+    conf_root, conf_key = _key.split('.')
+    if conf_root not in _conf:
+        return None
+    if conf_key not in _conf[conf_root]:
+        return None
+    return _conf[conf_root][conf_key]

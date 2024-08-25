@@ -9,4 +9,7 @@ sys.path.append(os.getcwd() + '/test')
 
 
 if __name__ == '__main__':
+    # target_tests = [
+    #     os.getcwd() + '/test/test_switch_module_mqtt.py',
+    # ]
     sys.exit(pytest.main())

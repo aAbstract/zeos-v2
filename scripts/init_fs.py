@@ -46,7 +46,7 @@ if __name__ == '__main__':
     _conf = load_conf()
     device_uuid = str(uuid4())
     with open('fs/conf.json', 'w') as conf_fd:
-        _conf['device_uuid'] = device_uuid
+        _conf['system']['device_uuid'] = device_uuid
         conf_fd.write(json.dumps(_conf))
     if init_fs_mode == 'ul':  # update lib mode
         os.system(f"rshell -p {DEV_PORT} mkdir /pyboard/lib")
@@ -55,7 +55,7 @@ if __name__ == '__main__':
     print('Creating New FS...OK')
     print('Device UUID:', device_uuid)
     with open('fs/conf.json', 'w') as conf_fd:
-        _conf['device_uuid'] = '00000000-0000-0000-0000-000000000000'
+        _conf['system']['device_uuid'] = '00000000-0000-0000-0000-000000000000'
         conf_fd.write(json.dumps(_conf))
     print(f"Creating New Entry Point: modules/{target_module}.py -> main.py...")
     os.system(f"rshell -p {DEV_PORT} cp modules/{target_module}.py /pyboard/main.py")

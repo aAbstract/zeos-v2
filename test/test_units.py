@@ -1,5 +1,5 @@
 import urllib.parse as urlp
-from lib.rpc import RPCServer
+import lib.rpc as _rpc
 
 
 def test_url_decoder():
@@ -18,5 +18,5 @@ def test_url_decoder():
 
     # run tests
     for query, target_output in test_cases:
-        _output = RPCServer._parse_http_query(query)
+        _output = _rpc._parse_http_query(query)
         assert _output == target_output
