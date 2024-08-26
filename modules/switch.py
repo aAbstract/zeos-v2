@@ -66,7 +66,7 @@ def handle_touch_input_code(_tic: bytes) -> tuple[bool, str]:
     return True, 'RELAY_STATE_ON' if new_relay_state == RELAY_STATE_ON else 'RELAY_STATE_OFF'
 
 
-async def detach_uart_0():
+def detach_uart_0():
     global touch_panel_uart
     _log.ilog('Detaching REPL from UART_0')
     machine.Pin(2, machine.Pin.OUT).value(0)
@@ -86,7 +86,6 @@ def mod_setup():
 
 async def mod_loop():
     _log.ilog('Running Module Task: ' + MODULE_NAME)
-    x = 1 / 0
     while True:
         if sys.implementation.name == 'micropython' and touch_panel_uart:
             if touch_panel_uart.any() > 0:
@@ -111,27 +110,30 @@ async def mqtt_client_loop(mqtt_client_task):
 
 
 async def boot_zeos():
-    http_tcp_server_task = _rpc.init_zeos_http_tcp_rpc()
-    if not http_tcp_server_task:
-        return
-    http_tcp_server_task = asyncio.create_task(http_tcp_server_task())
+    # http_tcp_server_task = _rpc.init_zeos_http_tcp_rpc()
+    # if not http_tcp_server_task:
+    #     return
 
     mqtt_client_task = _rpc.init_zeos_mqtt_rpc()
     if not mqtt_client_task:
         return
-    mqtt_client_task = asyncio.create_task(mqtt_client_loop(mqtt_client_task))
+
     _rpc.enable_mqtt_remote_logger()
-
+    _log.ilog('WiFi IP: ' + _wifi.get_wifi_ip())
     mod_setup()
-    module_task = asyncio.create_task(mod_loop())
-    # detach_uart_0_task = asyncio.create_task(detach_uart_0())
+    detach_uart_0()
 
-    await asyncio.gather(
-        http_tcp_server_task,
-        mqtt_client_task,
-        module_task,
-        # detach_uart_0_task,
-    )
+    # http_tcp_server_task = asyncio.create_task(http_tcp_server_task())
+    mqtt_client_task = asyncio.create_task(mqtt_client_loop(mqtt_client_task))
+    module_task = asyncio.create_task(mod_loop())
+    try:
+        await asyncio.gather(
+            # http_tcp_server_task,
+            mqtt_client_task,
+            module_task,
+        )
+    except Exception as e:
+        _log.grace_fail(e)
 
 
 def boot_repl():

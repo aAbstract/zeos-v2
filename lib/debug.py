@@ -1,4 +1,4 @@
-def breakpoint(stack_frame: dict = {}):
+def zeos_breakpoint(stack_frame: dict = {}):
     print('Starting Debugger...')
     print('Stack Frame:')
     for sf_vk in stack_frame.keys():

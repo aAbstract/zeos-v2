@@ -1,3 +1,6 @@
+import gc
+import io
+import sys
 import time
 
 import lib.device_config as _dconf
@@ -20,7 +23,7 @@ def _fmt_log(log_type: str, msg: str) -> str:
     return f"[{_fmt_datetime()}] [{log_type}] {msg}"
 
 
-def _out_log(log_msg: str):
+def out_log(log_msg: str):
     if not _enable_remote_logger:
         print(log_msg)
     else:
@@ -36,18 +39,45 @@ def ilog(msg: str):
     if log_level_bits[0] == '0':
         return
     log_msg = _fmt_log('INFO', msg)
-    _out_log(log_msg)
+    out_log(log_msg)
 
 
 def elog(msg: str):
     if log_level_bits[1] == '0':
         return
     log_msg = _fmt_log('ERROR', msg)
-    _out_log(log_msg)
+    out_log(log_msg)
 
 
 def dlog(msg: str):
     if log_level_bits[2] == '0':
         return
     log_msg = _fmt_log('DEBUG', msg)
-    _out_log(log_msg)
+    out_log(log_msg)
+
+
+def grace_fail(_exception: Exception):
+    exception_details = io.StringIO()
+    if sys.implementation.name == 'micropython':
+        sys.print_exception(_exception, exception_details)
+    elif sys.implementation.name == 'cpython':
+        import traceback
+        traceback.print_exception(_exception, file=exception_details)
+    exception_details = exception_details.getvalue()
+    out_log(exception_details)
+    time.sleep(2)
+
+    current_time = time.localtime(time.time())
+    year = current_time[0]
+    month = current_time[1]
+    day = current_time[2]
+    hour = current_time[3]
+    minute = current_time[4]
+    second = current_time[5]
+    fmt_time_stamp = f"{year}{month:0>2}{day:0>2}_{hour:0>2}{minute:0>2}{second:0>2}"
+    with open(f"fs/sys_fail_{fmt_time_stamp}.log", 'w') as f:
+        f.write(exception_details)
+
+    gc.collect()
+    gc.enable()
+    sys.exit()
