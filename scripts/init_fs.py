@@ -7,6 +7,9 @@ import subprocess
 
 
 DEV_PORT = '/dev/ttyUSB1'
+ZEOS_LIB_EXC = [
+    "",
+]
 
 
 def load_conf() -> dict:
@@ -30,6 +33,8 @@ if __name__ == '__main__':
     print('Building...')
     os.system('rm build/*')
     for py_file in glob('lib/*.py'):
+        if py_file in ZEOS_LIB_EXC:
+            continue
         py_file_name = py_file.split('/')[-1].split('.')[0]
         print(f"Compiling {py_file_name}...")
         os.system(f"bin/mpy-cross {py_file} -o build/{py_file_name}.mpy")
