@@ -51,10 +51,10 @@ _enable_http_tcp = False
 _tcp_handlers_map: dict = None
 _http_handlers_map: dict = None
 
-_mqtt_device_id = _dconf.get_conf('system.device_uuid')[-4:]
-_lwt_mqtt_topic = 'telem/' + _mqtt_device_id + '/lwt'
-_log_mqtt_topic = 'telem/' + _mqtt_device_id + '/log'
-_state_mqtt_topic = 'state/' + _mqtt_device_id
+mqtt_device_id = _dconf.get_conf('system.device_uuid')[-4:]
+_lwt_mqtt_topic = 'telem/' + mqtt_device_id + '/lwt'
+_log_mqtt_topic = 'telem/' + mqtt_device_id + '/log'
+_state_mqtt_topic = 'state/' + mqtt_device_id
 _enable_mqtt = False
 _mqtt_handlers_map: dict = None
 
@@ -222,7 +222,7 @@ def init_zeos_mqtt_rpc():
     _mqtt_handlers_map = {}
     mqtt_client_task = _mqtt.mqtt_connect([
         'telem/broadcast',
-        'rpc/' + _mqtt_device_id + '/#',
+        'rpc/' + mqtt_device_id + '/#',
     ], _core_handler_mqtt)
     gc.collect()
     return mqtt_client_task

@@ -5,7 +5,8 @@ from uuid import uuid4
 from glob import glob
 import subprocess
 
-DEV_PORT = '/dev/ttyUSB0'
+
+DEV_PORT = '/dev/ttyUSB1'
 
 
 def load_conf() -> dict:

@@ -11,6 +11,7 @@ sys.path.append(os.getcwd())
 import lib.device_config as _dconf
 import lib.log as _log
 import lib.wifi as _wifi
+import lib.mqtt as _mqtt
 import lib.rpc as _rpc
 # autopep8: on
 
@@ -30,6 +31,10 @@ if sys.implementation.name == 'micropython':
     power_1 = machine.Pin(4, machine.Pin.OUT)
     power_2 = machine.Pin(13, machine.Pin.OUT)
     power_3 = machine.Pin(14, machine.Pin.OUT)
+    power_0.value(RELAY_STATE_OFF)
+    power_1.value(RELAY_STATE_OFF)
+    power_2.value(RELAY_STATE_OFF)
+    power_3.value(RELAY_STATE_OFF)
 relay_map = {
     b'\x11': power_0,
     b'\x21': power_1,
@@ -89,7 +94,11 @@ async def mod_loop():
     while True:
         if sys.implementation.name == 'micropython' and touch_panel_uart:
             if touch_panel_uart.any() > 0:
-                handle_touch_input_code(touch_panel_uart.read(1))
+                tic = touch_panel_uart.read(1)
+                success, new_relay_state = handle_touch_input_code(tic)
+                if success:
+                    power_pref_idx = int(hex(tic[0])[2]) - 1
+                    _mqtt.mqtt_publish(f"state/{_rpc.mqtt_device_id}/power_{power_pref_idx}", new_relay_state)
             await asyncio.sleep(0.01)  # 100 Hz
             continue
         await asyncio.sleep(1)
@@ -102,8 +111,9 @@ async def mqtt_client_loop(mqtt_client_task):
     while True:
         mqtt_client_task()
         mqtt_gct += 1
-        if mqtt_gct >= 10:
+        if mqtt_gct >= 50:
             mqtt_gct = 0
+            _mqtt.mqtt_publish(f"telem/{_rpc.mqtt_device_id}/mem_free", str(gc.mem_free()))
             gc.collect()
         await asyncio.sleep(0.1)
 # autopep8: on
