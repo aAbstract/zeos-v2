@@ -15,6 +15,7 @@ import lib.mqtt as _mqtt
 import lib.rpc as _rpc
 # autopep8: on
 
+
 _wifi.wifi_connect()
 
 MODULE_NAME = 'SWITCH'
@@ -98,7 +99,7 @@ async def mod_loop():
                 success, new_relay_state = handle_touch_input_code(tic)
                 if success:
                     power_pref_idx = int(hex(tic[0])[2]) - 1
-                    _mqtt.mqtt_publish(f"state/{_rpc.mqtt_device_id}/power_{power_pref_idx}", new_relay_state)
+                    _mqtt.mqtt_publish(f"state/{_rpc.mqtt_device_id}/power_{power_pref_idx}", new_relay_state, retain=True)
             await asyncio.sleep(0.01)  # 100 Hz
             continue
         await asyncio.sleep(1)
@@ -113,7 +114,9 @@ async def mqtt_client_loop(mqtt_client_task):
         mqtt_gct += 1
         if mqtt_gct >= 50:
             mqtt_gct = 0
-            _mqtt.mqtt_publish(f"telem/{_rpc.mqtt_device_id}/mem_free", str(gc.mem_free()))
+            _mem_free = str(gc.mem_free())
+            _log.dlog('Free Memory: '+ _mem_free)
+            _mqtt.mqtt_publish(f"telem/{_rpc.mqtt_device_id}/mem_free", _mem_free)
             gc.collect()
         await asyncio.sleep(0.1)
 # autopep8: on

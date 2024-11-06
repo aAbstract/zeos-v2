@@ -6,9 +6,9 @@ from glob import glob
 import subprocess
 
 
-DEV_PORT = '/dev/ttyUSB1'
+DEV_PORT = '/dev/ttyACM0'
 ZEOS_LIB_EXC = [
-    "",
+    '',
 ]
 
 

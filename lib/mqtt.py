@@ -106,7 +106,7 @@ def mqtt_connect(
         )
 
 
-def mqtt_publish(topic: str, payload: str):
+def mqtt_publish(topic: str, payload: str, retain=False):
     if not _mqtt_client:
         return
     if sys.implementation.name == 'cpython':

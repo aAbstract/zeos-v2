@@ -1,18 +1,26 @@
 {
     "system": {
-        "device_uuid": "00000000-0000-0000-0000-000000000000",
+        "device_uuid": "00000000-0000-0000-0000-000000000001",
         "device_password": "device_pass_123",
         "boot_mode": "ZEOS",
         "log_level": 7
     },
     "wifi": {
-        "ssid": "Space_Vodafone",
-        "password": "m@4303863"
+        "ssid": "TEdataF15DA3",
+        "password": "16910057"
     },
     "mqtt": {
-        "broker": "192.168.0.150",
+        "broker": "192.168.1.2",
         "port": 1883,
         "username": "isi_muser",
         "password": "oE74zxUFEY35JX5ffyx4zUZTSauYS2zCFVhvL6gZe5bsBCQo3tP2pCS5VrH98mvX"
+    },
+    "ble_bridge": {
+        "ble_devices": [
+            {
+                "mac_address": "41:42:43:44:45:46",
+                "device_type": "QHT"
+            }
+        ]
     }
 }

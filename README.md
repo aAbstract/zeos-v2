@@ -5,6 +5,7 @@ ZEOS is a minimal operating system for IoT devices based on micropython
 ## Features
 - [x] File System
 - [x] WiFi Drivers
+- [x] BLE Drivers
 - [x] TCP
 - [x] MQTT
 - [x] Minified HTTP
