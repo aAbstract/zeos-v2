@@ -110,6 +110,6 @@ def mqtt_publish(topic: str, payload: str, retain=False):
     if not _mqtt_client:
         return
     if sys.implementation.name == 'cpython':
-        _mqtt_client.publish(topic, payload)
+        _mqtt_client.publish(topic, payload, retain=retain)
     elif sys.implementation.name == 'micropython':
-        _mqtt_client.publish(topic.encode(), payload.encode())
+        _mqtt_client.publish(topic.encode(), payload.encode(), retain=retain)

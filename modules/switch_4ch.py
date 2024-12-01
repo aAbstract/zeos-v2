@@ -18,7 +18,7 @@ import lib.rpc as _rpc
 
 _wifi.wifi_connect()
 
-MODULE_NAME = 'SWITCH'
+MODULE_NAME = 'SWITCH_4CH'
 RELAY_STATE_ON = 0
 RELAY_STATE_OFF = 1
 
@@ -131,7 +131,7 @@ async def boot_zeos():
     if not mqtt_client_task:
         return
 
-    _rpc.enable_mqtt_remote_logger()
+    # _rpc.enable_mqtt_remote_logger()
     _log.ilog('WiFi IP: ' + _wifi.get_wifi_ip())
     mod_setup()
     detach_uart_0()
