@@ -19,14 +19,4 @@ ZEOS is a minimal operating system for IoT devices based on micropython
 - [ ] OTA Firmware Update
 - [x] Simple Access Control
 
-## Run
-1. Install MicroPython [rshell](https://github.com/dhylands/rshell)
-```bash
-pip3 install rshell
-```
-
-2. Upload ZEOS File System on Target Device Using Helper Script **scripts/init_fs.py**
-```bash
-# init_fs.py <module_name> [ul: update lib | (sl): skip lib]
-init_fs.py switch ul
-```
+## DOCS - TODO
